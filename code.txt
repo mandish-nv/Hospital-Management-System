@@ -1,1 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>	
+#define MAX_QUEUE 500
 
+struct queue
+{
+    int item[MAX_QUEUE];
+    int front;
+    int rear;
+};
+
+typedef struct queue HospitalQueue;
+void enqueue(HospitalQueue *);
+void dequeue(HospitalQueue *);
+void display(HospitalQueue *);
+
+int main()
+{
+	
+    HospitalQueue q;
+    q.front = MAX_QUEUE - 1;
+    q.rear = MAX_QUEUE - 1;
+    
+    int option;
+
+    do
+    {
+    	system("CLS");
+    	printf("-------------HOSPITAL-------------\n\n");
+    	printf("1. Register information\n");
+		//input data and store in file and sort
+    	printf("2. Enter for Checkup\n");
+		//check if user exists from file and enter reason for checkup and emergency case then assign to queue with token
+		//store reason?
+    	printf("3. View patient list\n");
+    	//display from file
+    	printf("4. Search patient information\n");
+    	//use linear/binary search and displayinformation with cause of visits
+    	printf("5. Exit\n");
+    
+        printf("\nEnter Option: ");
+        scanf("%d", &option);
+
+        switch (option)
+        {
+        case 1:
+            //registration();
+            getch();
+            break;
+        case 2:
+            //checkup();
+            getch();
+			break;
+        case 3:
+            //viewlist();
+            getch();
+			break;
+        case 4:
+            //search();
+            getch();
+			break;
+		case 5:
+            printf("Exiting...\n");
+            getch();
+			break;
+        default:
+            printf("Invalid Choice\n");
+            getch();
+			break;
+        }
+    } while (option != 5);
+    return 0;
+}
+
+void enqueue(HospitalQueue *q)
+{
+    int value;
+    if ((q->rear + 1) % MAX_QUEUE == q->front)
+    {
+        printf("ERROR! Queue Overflow\n");
+    }
+    else
+    {
+        printf("Enter the value to be inserted: ");
+        scanf("%d", &value);
+        q->rear = (q->rear + 1) % MAX_QUEUE;
+        q->item[q->rear] = value;
+        printf("The element %d is inserted to the queue\n", value);
+    }
+}
+
+void dequeue(HospitalQueue *q)
+{
+    if (q->front == q->rear)
+    {
+        printf("ERROR! Queue Underflow\n");
+    }
+    else
+    {
+        q->front = (q->front + 1) % MAX_QUEUE;
+        printf("The deleted element is %d\n", q->item[q->front]);
+    }
+}
+
+void display(HospitalQueue *q)
+{
