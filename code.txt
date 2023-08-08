@@ -3,17 +3,50 @@
 #include <conio.h>	
 #define MAX_QUEUE 500
 
+int token=1;
+
+struct patient
+{
+	char name[20], reg_no[10], cause[20], emerg[3];
+	int token;
+};
+
 struct queue
 {
-    int item[MAX_QUEUE];
+    struct patient p[MAX_QUEUE];
     int front;
     int rear;
 };
-
 typedef struct queue HospitalQueue;
-void enqueue(HospitalQueue *);
-void dequeue(HospitalQueue *);
-void display(HospitalQueue *);
+
+void checkup(HospitalQueue *q)
+{
+    struct patient p;
+    if ((q->rear + 1) % MAX_QUEUE == q->front)
+    {
+        printf("QUEUE IS FULL! PLEASE WAIT.\n");
+    }
+    else
+    {
+        //file
+		printf("Enter your name: ");
+		scanf("%s",&p.name);
+		printf("Enter your registration number: ");
+		scanf("%s",&p.reg_no);	
+		//check if exists in file
+		printf("Enter cause of visit: ");
+		scanf("%s",&p.cause);
+		printf("Is it an emergency?(Y/N) ");
+		scanf("%s",&p.emerg);
+		p.token=token++;
+        
+        q->rear = (q->rear + 1) % MAX_QUEUE;
+        //??????
+		q->item[q->rear] = p;
+        printf("Added to Queue\n");
+    }
+}
+
 
 int main()
 {
@@ -33,10 +66,10 @@ int main()
     	printf("2. Enter for Checkup\n");
 		//check if user exists from file and enter reason for checkup and emergency case then assign to queue with token
 		//store reason?
-    	printf("3. View patient list\n");
-    	//display from file
+    	printf("3. View Queue list\n");
+    	//display queue and dequeue info with timer?
     	printf("4. Search patient information\n");
-    	//use linear/binary search and displayinformation with cause of visits
+    	//use linear/binary search and display information with cause of visits
     	printf("5. Exit\n");
     
         printf("\nEnter Option: ");
@@ -49,7 +82,7 @@ int main()
             getch();
             break;
         case 2:
-            //checkup();
+            checkup(q);
             getch();
 			break;
         case 3:
@@ -73,23 +106,8 @@ int main()
     return 0;
 }
 
-void enqueue(HospitalQueue *q)
-{
-    int value;
-    if ((q->rear + 1) % MAX_QUEUE == q->front)
-    {
-        printf("ERROR! Queue Overflow\n");
-    }
-    else
-    {
-        printf("Enter the value to be inserted: ");
-        scanf("%d", &value);
-        q->rear = (q->rear + 1) % MAX_QUEUE;
-        q->item[q->rear] = value;
-        printf("The element %d is inserted to the queue\n", value);
-    }
-}
 
+/*
 void dequeue(HospitalQueue *q)
 {
     if (q->front == q->rear)
@@ -105,3 +123,21 @@ void dequeue(HospitalQueue *q)
 
 void display(HospitalQueue *q)
 {
+    if (q->front == q->rear)
+    {
+        printf("ERROR! Queue is empty\n");
+    }
+    else
+    {
+        printf("The elements of the queue are: ");
+        int i = (q->front + 1) % MAX_QUEUE;
+        while (i != (q->rear + 1) % MAX_QUEUE)
+        {
+            printf("%d\t", q->item[i]);
+            i = (i + 1) % MAX_QUEUE;
+        }
+        printf("\n");
+    }
+}
+	
+*/
