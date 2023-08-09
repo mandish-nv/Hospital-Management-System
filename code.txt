@@ -42,7 +42,7 @@ void checkup(HospitalQueue *q)
         
         q->rear = (q->rear + 1) % MAX_QUEUE;
         //??????
-		q->item[q->rear] = p;
+		q->p[q->rear] = p;
         printf("Added to Queue\n");
     }
 }
@@ -65,11 +65,11 @@ int main()
 		//input data and store in file and sort
     	printf("2. Enter for Checkup\n");
 		//check if user exists from file and enter reason for checkup and emergency case then assign to queue with token
-		//store reason?
+		//emergency lai seperate queue
     	printf("3. View Queue list\n");
     	//display queue and dequeue info with timer?
     	printf("4. Search patient information\n");
-    	//use linear/binary search and display information with cause of visits
+    	//use linear/binary search and display information
     	printf("5. Exit\n");
     
         printf("\nEnter Option: ");
