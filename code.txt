@@ -19,10 +19,10 @@ struct queue
 };
 typedef struct queue HospitalQueue;
 
-void checkup(HospitalQueue *q)
+void checkup(HospitalQueue q)
 {
     struct patient p;
-    if ((q->rear + 1) % MAX_QUEUE == q->front)
+    if ((q.rear + 1) % MAX_QUEUE == q.front)
     {
         printf("QUEUE IS FULL! PLEASE WAIT.\n");
     }
@@ -40,9 +40,9 @@ void checkup(HospitalQueue *q)
 		scanf("%s",&p.emerg);
 		p.token=token++;
         
-        q->rear = (q->rear + 1) % MAX_QUEUE;
+        q.rear = (q.rear + 1) % MAX_QUEUE;
         //??????
-		q->p[q->rear] = p;
+		q.p[q.rear] = p;
         printf("Added to Queue\n");
     }
 }
