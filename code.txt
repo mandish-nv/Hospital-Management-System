@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>	
+
 #define MAX_QUEUE 500
 
 int token=1;
@@ -13,16 +14,29 @@ struct patient
 
 struct queue
 {
-    struct patient p[MAX_QUEUE];
+    struct patient pat[MAX_QUEUE];
     int front;
     int rear;
 };
 typedef struct queue HospitalQueue;
 
-void checkup(HospitalQueue q)
+void registration()
+{
+	FILE* fptr;
+
+    fptr = fopen("filename.txt", "w");
+    // checking if the file is opened successfully
+    if (fptr == NULL) {
+        printf("The file is not opened. The program will now exit.");
+        exit(0);
+    }
+}
+
+
+void checkup(HospitalQueue *q)
 {
     struct patient p;
-    if ((q.rear + 1) % MAX_QUEUE == q.front)
+    if ((q->rear + 1) % MAX_QUEUE == q->front)
     {
         printf("QUEUE IS FULL! PLEASE WAIT.\n");
     }
@@ -40,17 +54,54 @@ void checkup(HospitalQueue q)
 		scanf("%s",&p.emerg);
 		p.token=token++;
         
-        q.rear = (q.rear + 1) % MAX_QUEUE;
+        q->rear = (q->rear + 1) % MAX_QUEUE;
         //??????
-		q.p[q.rear] = p;
+		q->pat[q->rear] = p;
         printf("Added to Queue\n");
     }
+}
+
+void viewlist(HospitalQueue *q)
+{
+	int i;
+	
+	//Dequeue
+	if (q->front == q->rear)
+    {
+        printf("Queue is empty\n");
+    }
+    else
+    {
+    	//timer loop?
+        q->front = (q->front + 1) % MAX_QUEUE;
+        printf("Call for checkup:\n");
+        printf("\tToken number: %d\t\t",q->pat[q->front].token);
+		printf("\tName: %s\n",q->pat[q->front].name);
+    }
+    
+    //Display
+	if (q->front == q->rear)
+    {
+        printf("Queue is empty\n");
+    }
+    else
+    {
+		i = (q->front + 1 ) % MAX_QUEUE;
+		printf("\n\nCurrent Queue:\n");
+        while (i != (q->rear + 1) % MAX_QUEUE)
+        {
+            printf("\tToken number: %d\t\t",q->pat[i].token);
+			printf("\tName: %s\n",q->pat[i].name);
+            i = (i + 1) % MAX_QUEUE;
+        }
+        printf("\n");
+    }
+    
 }
 
 
 int main()
 {
-	
     HospitalQueue q;
     q.front = MAX_QUEUE - 1;
     q.rear = MAX_QUEUE - 1;
@@ -82,11 +133,11 @@ int main()
             getch();
             break;
         case 2:
-            checkup(q);
+            checkup(&q);
             getch();
 			break;
         case 3:
-            //viewlist();
+            viewlist(&q);
             getch();
 			break;
         case 4:
@@ -106,38 +157,3 @@ int main()
     return 0;
 }
 
-
-/*
-void dequeue(HospitalQueue *q)
-{
-    if (q->front == q->rear)
-    {
-        printf("ERROR! Queue Underflow\n");
-    }
-    else
-    {
-        q->front = (q->front + 1) % MAX_QUEUE;
-        printf("The deleted element is %d\n", q->item[q->front]);
-    }
-}
-
-void display(HospitalQueue *q)
-{
-    if (q->front == q->rear)
-    {
-        printf("ERROR! Queue is empty\n");
-    }
-    else
-    {
-        printf("The elements of the queue are: ");
-        int i = (q->front + 1) % MAX_QUEUE;
-        while (i != (q->rear + 1) % MAX_QUEUE)
-        {
-            printf("%d\t", q->item[i]);
-            i = (i + 1) % MAX_QUEUE;
-        }
-        printf("\n");
-    }
-}
-	
-*/
