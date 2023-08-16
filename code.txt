@@ -8,7 +8,9 @@ int token=1;
 
 struct patient
 {
-	char name[20], reg_no[10], cause[20], emerg[3];
+	char name[20], cause[20], emerg[3];
+	char address[20], sex[10];
+	int age, cont_no;
 	int token;
 };
 
@@ -22,31 +24,52 @@ typedef struct queue HospitalQueue;
 
 void registration()
 {
+	system("CLS");
 	FILE* fptr;
-
+	struct patient p;
+	
+	//append ma
     fptr = fopen("filename.txt", "w");
-    // checking if the file is opened successfully
-    if (fptr == NULL) {
-        printf("The file is not opened. The program will now exit.");
-        exit(0);
-    }
+   	printf("REGISTRATION MENU\n\n");
+	printf("Enter your NAME: ");
+	scanf("%s", &p.name);
+    printf("Enter your AGE: ");
+    scanf("%d", &p.age);
+    printf("Enter your SEX: ");
+    scanf("%s", &p.sex);
+    printf("Enter your ADDRESS: ");
+    scanf("%s", &p.address);
+    printf("Enter your CONTACT NUMBER: ");
+    scanf("%d", &p.cont_no);
+    fprintf(fptr, "\n%s %d %s %s %d", p.name,p.age,p.sex,p.address,p.cont_no);
+    fclose(fptr);
 }
 
 
 void checkup(HospitalQueue *q)
 {
     struct patient p;
-    if ((q->rear + 1) % MAX_QUEUE == q->front)
-    {
-        printf("QUEUE IS FULL! PLEASE WAIT.\n");
-    }
-    else
-    {
+    
+    // checking if the file is opened successfully
+    //if ((q->rear + 1) % MAX_QUEUE == q->front)
+//    {
+//        printf("QUEUE IS FULL! PLEASE WAIT.\n");
+//    }
+//    else
+//    {
+//    	if (fptr == NULL)
+//	{
+//        printf("FILE NOT FOUND.\n");
+//    }
+//    else
+//    {
+//    	
+//    }
         //file
 		printf("Enter your name: ");
 		scanf("%s",&p.name);
-		printf("Enter your registration number: ");
-		scanf("%s",&p.reg_no);	
+		printf("Enter your contact number: ");
+		scanf("%d",&p.cont_no);	
 		//check if exists in file
 		printf("Enter cause of visit: ");
 		scanf("%s",&p.cause);
@@ -58,7 +81,7 @@ void checkup(HospitalQueue *q)
         //??????
 		q->pat[q->rear] = p;
         printf("Added to Queue\n");
-    }
+    
 }
 
 void viewlist(HospitalQueue *q)
@@ -129,7 +152,7 @@ int main()
         switch (option)
         {
         case 1:
-            //registration();
+            registration();
             getch();
             break;
         case 2:
