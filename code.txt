@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <conio.h>	
 
 #define MAX_QUEUE 500
@@ -28,8 +29,7 @@ void registration()
 	FILE* fptr;
 	struct patient p;
 	
-	//append ma
-    fptr = fopen("filename.txt", "w");
+    fptr = fopen("filename.txt", "a");
    	printf("REGISTRATION MENU\n\n");
 	printf("Enter your NAME: ");
 	scanf("%s", &p.name);
@@ -43,6 +43,7 @@ void registration()
     scanf("%d", &p.cont_no);
     fprintf(fptr, "\n%s %d %s %s %d", p.name,p.age,p.sex,p.address,p.cont_no);
     fclose(fptr);
+    //sort
 }
 
 
@@ -92,6 +93,7 @@ void viewlist(HospitalQueue *q)
 	if (q->front == q->rear)
     {
         printf("Queue is empty\n");
+        return;
     }
     else
     {
@@ -106,6 +108,7 @@ void viewlist(HospitalQueue *q)
 	if (q->front == q->rear)
     {
         printf("Queue is empty\n");
+        return;
     }
     else
     {
@@ -120,6 +123,113 @@ void viewlist(HospitalQueue *q)
         printf("\n");
     }
     
+}
+
+void view_all()
+{
+	system("CLS");
+	FILE* fptr;
+	struct patient p;
+	
+    fptr = fopen("filename.txt", "r");
+    
+    if(fptr == NULL)
+   {
+      printf("FILE NOT FOUND!");   
+      return;             
+   }
+   printf("PATIENT LIST\n\n");
+    while(!feof(fptr))
+    {
+    	fscanf(fptr, "%s %d %s %s %d", &p.name,&p.age,&p.sex,&p.address,&p.cont_no);
+		printf("NAME: %s\n", p.name);
+    	printf("AGE: %d\n", p.age);
+    	printf("SEX: %s\n", p.sex);
+   		printf("ADDRESS: %s\n", p.address);
+   		printf("CONTACT NUMBER: %d\n\n", p.cont_no);
+    }
+    fclose(fptr);
+}
+
+void search_pat()
+{
+	system("CLS");
+	char search_name[20];
+	int search_cont_no;
+	FILE* fptr;
+	struct patient p;
+	
+    fptr = fopen("filename.txt", "r");
+    
+    printf("SEARCH\n\n");
+    printf("Enter patient's name: ");
+    scanf("%s" ,&search_name);
+    printf("Enter patient's contact number: ");
+    scanf("%d" ,&search_cont_no);
+    
+    if(fptr == NULL)
+   {
+      printf("FILE NOT FOUND!");   
+      return;             
+   }
+    while(!feof(fptr))
+    {
+    	fscanf(fptr, "%s %d %s %s %d", &p.name,&p.age,&p.sex,&p.address,&p.cont_no);
+    	if(strcmp(search_name,p.name)==0 && search_cont_no==p.cont_no)
+    	{
+			printf("\n\nNAME: %s\n", p.name);
+    		printf("AGE: %d\n", p.age);
+    		printf("SEX: %s\n", p.sex);
+   			printf("ADDRESS: %s\n", p.address);
+   			printf("CONTACT NUMBER: %d", p.cont_no);
+   			return;
+   		}
+    }
+    printf("\n\nPatient not found.");
+    fclose(fptr);
+}
+
+void search_menu()
+{
+	int option;
+	
+	do
+	{
+		system("CLS");
+   		printf("-------------Search-------------\n\n");
+  	 	printf("1. View all patients\n");
+  	 	printf("2. Search patient\n");
+  	 	printf("3. Edit patient information\n");
+  	 	printf("4. Return to Menu\n");
+  	 	
+  	 	printf("\nEnter Option: ");
+        scanf("%d", &option);
+        
+        switch (option)
+        {
+        case 1:
+        	view_all();
+        	getch();
+        	break;
+        case 2:
+        	search_pat();
+        	getch();
+			break;
+        case 3:
+        	//edit_pat();
+        	getch();
+        	break;
+        case 4:
+            getch();
+			break;
+        default:
+            printf("Invalid Choice\n");
+            getch();
+			break;
+        	
+        }
+        
+	} while (option != 4);
 }
 
 
@@ -153,6 +263,7 @@ int main()
         {
         case 1:
             registration();
+            //sort
             getch();
             break;
         case 2:
@@ -164,7 +275,7 @@ int main()
             getch();
 			break;
         case 4:
-            //search();
+            search_menu();
             getch();
 			break;
 		case 5:
