@@ -1,18 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>	
+#include <conio.h>
+#include <ctype.h>
 
-#define MAX_QUEUE 500
+#define MAX_QUEUE 200
+#define EMERG_MAX 20
 
-int token=1;
+int token = 1;
 
 struct patient
 {
-	char name[20], cause[20], emerg[3];
-	char address[20], sex[10];
-	int age, cont_no;
-	int token;
+    char name[20], cause[20], emerg[3];
+    char address[20], sex[10];
+    int age, cont_no;
+    int token;
 };
 
 struct queue
@@ -23,16 +25,30 @@ struct queue
 };
 typedef struct queue HospitalQueue;
 
+struct emergency_queue
+{
+    struct patient pat[EMERG_MAX];
+    int front;
+    int rear;
+};
+typedef struct emergency_queue EmergQueue;
+
 void registration()
 {
-	system("CLS");
-	FILE* fptr;
-	struct patient p;
-	
-    fptr = fopen("filename.txt", "a");
-   	printf("REGISTRATION MENU\n\n");
-	printf("Enter your NAME: ");
-	scanf("%s", &p.name);
+    system("CLS");
+    FILE *fptr;
+    struct patient p;
+
+    fptr = fopen("patient.txt", "a");
+    if (fptr == NULL)
+    {
+        printf("FILE NOT FOUND!");
+        return;
+    }
+
+    printf("REGISTRATION MENU\n\n");
+    printf("Enter your NAME: ");
+    scanf("%s", &p.name);
     printf("Enter your AGE: ");
     scanf("%d", &p.age);
     printf("Enter your SEX: ");
@@ -41,221 +57,369 @@ void registration()
     scanf("%s", &p.address);
     printf("Enter your CONTACT NUMBER: ");
     scanf("%d", &p.cont_no);
-    fprintf(fptr, "\n%s %d %s %s %d", p.name,p.age,p.sex,p.address,p.cont_no);
+    fprintf(fptr, "\n%s %d %s %s %d", p.name, p.age, p.sex, p.address, p.cont_no);
     fclose(fptr);
-    //sort
+    // sort
 }
 
-
-void checkup(HospitalQueue *q)
+void checkup(HospitalQueue *q,EmergQueue *e)
 {
-    struct patient p;
-    
-    // checking if the file is opened successfully
-    //if ((q->rear + 1) % MAX_QUEUE == q->front)
-//    {
-//        printf("QUEUE IS FULL! PLEASE WAIT.\n");
-//    }
-//    else
-//    {
-//    	if (fptr == NULL)
-//	{
-//        printf("FILE NOT FOUND.\n");
-//    }
-//    else
-//    {
-//    	
-//    }
-        //file
-		printf("Enter your name: ");
-		scanf("%s",&p.name);
-		printf("Enter your contact number: ");
-		scanf("%d",&p.cont_no);	
-		//check if exists in file
-		printf("Enter cause of visit: ");
-		scanf("%s",&p.cause);
-		printf("Is it an emergency?(Y/N) ");
-		scanf("%s",&p.emerg);
-		p.token=token++;
-        
-        q->rear = (q->rear + 1) % MAX_QUEUE;
-        //??????
-		q->pat[q->rear] = p;
-        printf("Added to Queue\n");
-    
+    struct patient p, check;
+    FILE *fptr;
+
+    fptr = fopen("patient.txt", "r");
+    if (fptr == NULL)
+    {
+        printf("FILE NOT FOUND!");
+        return;
+    }
+
+    printf("Enter your name: ");
+    scanf("%s", &p.name);
+    printf("Enter your contact number: ");
+    scanf("%d", &p.cont_no);
+
+    // check if exists in file
+    do
+    {
+        fscanf(fptr, "%s %d %s %s %d", &check.name, &check.age, &check.sex, &check.address, &check.cont_no);
+        if (p.name == check.name && p.cont_no == check.cont_no)
+        {
+            printf("\nPatient record found!\n");
+            break;
+        }
+    } while (!feof(fptr));
+    fclose(fptr);
+
+    if (p.name != check.name && p.cont_no != check.cont_no)
+    {
+        printf("Patient record not found\n");
+        return;
+    }
+
+    printf("Enter cause of visit: ");
+    scanf("%s", &p.cause);
+    printf("Is it an emergency?(Y/N) ");
+    scanf("%s", &p.emerg);
+
+    // emergency case
+    if (toupper(p.emerg) == 'Y' || toupper(p.emerg) == 'YES')
+    {
+        if ((e->rear + 1) % EMERG_MAX == e->front)
+        {
+            printf("EMERGENCY QUEUE IS FULL! PLEASE WAIT.\n");
+        }
+        else
+        {
+            e->rear = (e->rear + 1) % EMERG_MAX;
+            e->pat[e->rear] = p;
+            printf("Added to Emergency Queue\n");
+        }
+    }
+    else
+    {
+        p.token = token++;
+        // Enqueue Circular queue
+        if ((q->rear + 1) % MAX_QUEUE == q->front)
+        {
+            printf("QUEUE IS FULL! PLEASE WAIT.\n");
+        }
+        else
+        {
+            q->rear = (q->rear + 1) % MAX_QUEUE;
+            q->pat[q->rear] = p;
+            printf("Added to Queue\n");
+        }
+    }
 }
 
 void viewlist(HospitalQueue *q)
 {
-	int i;
-	
-	//Dequeue
-	if (q->front == q->rear)
+    int i;
+
+    // Dequeue
+    if (q->front == q->rear)
     {
         printf("Queue is empty\n");
         return;
     }
     else
     {
-    	//timer loop?
+        // timer loop?
         q->front = (q->front + 1) % MAX_QUEUE;
         printf("Call for checkup:\n");
-        printf("\tToken number: %d\t\t",q->pat[q->front].token);
-		printf("\tName: %s\n",q->pat[q->front].name);
+        printf("\tToken number: %d\t\t", q->pat[q->front].token);
+        printf("\tName: %s\n", q->pat[q->front].name);
     }
-    
-    //Display
-	if (q->front == q->rear)
+
+    // Display
+    if (q->front == q->rear)
     {
         printf("Queue is empty\n");
         return;
     }
     else
     {
-		i = (q->front + 1 ) % MAX_QUEUE;
-		printf("\n\nCurrent Queue:\n");
+        i = (q->front + 1) % MAX_QUEUE;
+        printf("\n\nCurrent Queue:\n");
         while (i != (q->rear + 1) % MAX_QUEUE)
         {
-            printf("\tToken number: %d\t\t",q->pat[i].token);
-			printf("\tName: %s\n",q->pat[i].name);
+            printf("\tToken number: %d\t\t", q->pat[i].token);
+            printf("\tName: %s\n", q->pat[i].name);
             i = (i + 1) % MAX_QUEUE;
         }
         printf("\n");
     }
-    
 }
 
 void view_all()
 {
-	system("CLS");
-	FILE* fptr;
-	struct patient p;
-	
-    fptr = fopen("filename.txt", "r");
-    
-    if(fptr == NULL)
-   {
-      printf("FILE NOT FOUND!");   
-      return;             
-   }
-   printf("PATIENT LIST\n\n");
-    while(!feof(fptr))
+    system("CLS");
+    FILE *fptr;
+    struct patient p;
+
+    fptr = fopen("patient.txt", "r");
+
+    if (fptr == NULL)
     {
-    	fscanf(fptr, "%s %d %s %s %d", &p.name,&p.age,&p.sex,&p.address,&p.cont_no);
-		printf("NAME: %s\n", p.name);
-    	printf("AGE: %d\n", p.age);
-    	printf("SEX: %s\n", p.sex);
-   		printf("ADDRESS: %s\n", p.address);
-   		printf("CONTACT NUMBER: %d\n\n", p.cont_no);
+        printf("FILE NOT FOUND!");
+        return;
+    }
+    printf("PATIENT LIST\n\n");
+    while (!feof(fptr))
+    {
+        fscanf(fptr, "%s %d %s %s %d", &p.name, &p.age, &p.sex, &p.address, &p.cont_no);
+        printf("NAME: %s\n", p.name);
+        printf("AGE: %d\n", p.age);
+        printf("SEX: %s\n", p.sex);
+        printf("ADDRESS: %s\n", p.address);
+        printf("CONTACT NUMBER: %d\n\n", p.cont_no);
     }
     fclose(fptr);
 }
 
 void search_pat()
 {
-	system("CLS");
-	char search_name[20];
-	int search_cont_no;
-	FILE* fptr;
-	struct patient p;
-	
-    fptr = fopen("filename.txt", "r");
-    
+    system("CLS");
+    char search_name[20];
+    int search_cont_no;
+    FILE *fptr;
+    struct patient p;
+
+    fptr = fopen("patient.txt", "r");
+
     printf("SEARCH\n\n");
     printf("Enter patient's name: ");
-    scanf("%s" ,&search_name);
+    scanf("%s", &search_name);
     printf("Enter patient's contact number: ");
-    scanf("%d" ,&search_cont_no);
-    
-    if(fptr == NULL)
-   {
-      printf("FILE NOT FOUND!");   
-      return;             
-   }
-    while(!feof(fptr))
+    scanf("%d", &search_cont_no);
+
+    if (fptr == NULL)
     {
-    	fscanf(fptr, "%s %d %s %s %d", &p.name,&p.age,&p.sex,&p.address,&p.cont_no);
-    	if(strcmp(search_name,p.name)==0 && search_cont_no==p.cont_no)
-    	{
-			printf("\n\nNAME: %s\n", p.name);
-    		printf("AGE: %d\n", p.age);
-    		printf("SEX: %s\n", p.sex);
-   			printf("ADDRESS: %s\n", p.address);
-   			printf("CONTACT NUMBER: %d", p.cont_no);
-   			return;
-   		}
+        printf("FILE NOT FOUND!");
+        return;
+    }
+    while (!feof(fptr))
+    {
+        fscanf(fptr, "%s %d %s %s %d", &p.name, &p.age, &p.sex, &p.address, &p.cont_no);
+        if (strcmp(search_name, p.name) == 0 && search_cont_no == p.cont_no)
+        {
+            printf("\n\nNAME: %s\n", p.name);
+            printf("AGE: %d\n", p.age);
+            printf("SEX: %s\n", p.sex);
+            printf("ADDRESS: %s\n", p.address);
+            printf("CONTACT NUMBER: %d", p.cont_no);
+            return;
+        }
     }
     printf("\n\nPatient not found.");
     fclose(fptr);
 }
 
-void search_menu()
+void delete_pat()
 {
-	int option;
-	
-	do
-	{
-		system("CLS");
-   		printf("-------------Search-------------\n\n");
-  	 	printf("1. View all patients\n");
-  	 	printf("2. Search patient\n");
-  	 	printf("3. Edit patient information\n");
-  	 	printf("4. Return to Menu\n");
-  	 	
-  	 	printf("\nEnter Option: ");
-        scanf("%d", &option);
-        
-        switch (option)
+    system("CLS");
+    char search_name[20];
+    int search_cont_no;
+    FILE *fptr1, *fptr2;
+    struct patient p;
+
+    fptr1 = fopen("patient.txt", "r");
+    fptr2 = fopen("temp.txt", "w");
+
+    printf("DELETE PATIENT INFORMATION\n\n");
+    printf("Enter patient's name: ");
+    scanf("%s", &search_name);
+    printf("Enter patient's contact number: ");
+    scanf("%d", &search_cont_no);
+
+    if (fptr1 == NULL)
+    {
+        printf("FILE1 NOT FOUND!");
+        return;
+    }
+    if (fptr2 == NULL)
+    {
+        printf("FILE2 NOT FOUND!");
+        return;
+    }
+    while (!feof(fptr1))
+    {
+        fscanf(fptr1, "%s %d %s %s %d", &p.name, &p.age, &p.sex, &p.address, &p.cont_no);
+        if (strcmp(search_name, p.name) == 0 && search_cont_no == p.cont_no)
         {
-        case 1:
-        	view_all();
-        	getch();
-        	break;
-        case 2:
-        	search_pat();
-        	getch();
-			break;
-        case 3:
-        	//edit_pat();
-        	getch();
-        	break;
-        case 4:
-            getch();
-			break;
-        default:
-            printf("Invalid Choice\n");
-            getch();
-			break;
-        	
+            printf("Record deleted successfully\n");
+            continue;
         }
-        
-	} while (option != 4);
+        fprintf(fptr2, "\n%s %d %s %s %d", p.name, p.age, p.sex, p.address, p.cont_no);
+    }
+
+    fclose(fptr1);
+    fclose(fptr2);
+
+    remove("patient.txt");
+    rename("temp.txt", "patient.txt");
+
+    if (strcmp(search_name, p.name) != 0 && search_cont_no != p.cont_no)
+    {
+        printf("Record not found");
+        return;
+    }
 }
 
-
-int main()
+void edit_pat()
 {
-    HospitalQueue q;
-    q.front = MAX_QUEUE - 1;
-    q.rear = MAX_QUEUE - 1;
-    
+    system("CLS");
+    char search_name[20];
+    int search_cont_no;
+    int success = 0;
+    FILE *fptr1, *fptr2;
+    struct patient p;
+
+    fptr1 = fopen("patient.txt", "r");
+    fptr2 = fopen("temp.txt", "w");
+
+    printf("DELETE PATIENT INFORMATION\n\n");
+    printf("Enter patient's name: ");
+    scanf("%s", &search_name);
+    printf("Enter patient's contact number: ");
+    scanf("%d", &search_cont_no);
+
+    if (fptr1 == NULL)
+    {
+        printf("FILE1 NOT FOUND!");
+        return;
+    }
+    if (fptr2 == NULL)
+    {
+        printf("FILE2 NOT FOUND!");
+        return;
+    }
+    while (!feof(fptr1))
+    {
+        fscanf(fptr1, "%s %d %s %s %d", &p.name, &p.age, &p.sex, &p.address, &p.cont_no);
+        if (strcmp(search_name, p.name) == 0 && search_cont_no == p.cont_no)
+        {
+            printf("Enter your NAME: ");
+            scanf("%s", &p.name);
+            printf("Enter your AGE: ");
+            scanf("%d", &p.age);
+            printf("Enter your SEX: ");
+            scanf("%s", &p.sex);
+            printf("Enter your ADDRESS: ");
+            scanf("%s", &p.address);
+            printf("Enter your CONTACT NUMBER: ");
+            scanf("%d", &p.cont_no);
+            printf("\nRecord edited successfully\n");
+            success = 1;
+        }
+        fprintf(fptr2, "\n%s %d %s %s %d", p.name, p.age, p.sex, p.address, p.cont_no);
+    }
+
+    fclose(fptr1);
+    fclose(fptr2);
+
+    remove("patient.txt");
+    rename("temp.txt", "patient.txt");
+
+    if (success = 0)
+    {
+        printf("Record not found");
+        return;
+    }
+}
+
+void search_menu()
+{
     int option;
 
     do
     {
-    	system("CLS");
-    	printf("-------------HOSPITAL-------------\n\n");
-    	printf("1. Register information\n");
-		//input data and store in file and sort
-    	printf("2. Enter for Checkup\n");
-		//check if user exists from file and enter reason for checkup and emergency case then assign to queue with token
-		//emergency lai seperate queue
-    	printf("3. View Queue list\n");
-    	//display queue and dequeue info with timer?
-    	printf("4. Search patient information\n");
-    	//use linear/binary search and display information
-    	printf("5. Exit\n");
-    
+        system("CLS");
+        printf("-------------Search-------------\n\n");
+        printf("1. View all patients\n");
+        printf("2. Search patient\n");
+        printf("3. Delete patient information\n");
+        printf("4. Edit patient information\n");
+        printf("5. Return to Menu\n");
+
+        printf("\nEnter Option: ");
+        scanf("%d", &option);
+
+        switch (option)
+        {
+        case 1:
+            view_all();
+            getch();
+            break;
+        case 2:
+            search_pat();
+            getch();
+            break;
+        case 3:
+            delete_pat();
+            getch();
+            break;
+        case 4:
+            edit_pat();
+            getch();
+            break;
+        case 5:
+            getch();
+            break;
+        default:
+            printf("Invalid Choice\n");
+            getch();
+            break;
+        }
+
+    } while (option != 4);
+}
+
+int main()
+{
+    HospitalQueue q;
+    EmergQueue e;
+    q.front = e.front= MAX_QUEUE - 1;
+    q.rear = e.rear= MAX_QUEUE - 1;
+
+    int option;
+
+    do
+    {
+        system("CLS");
+        printf("-------------HOSPITAL-------------\n\n");
+        printf("1. Register information\n");
+        // input data and store in file and sort
+        printf("2. Enter for Checkup\n");
+        // check if user exists from file and enter reason for checkup and emergency case then assign to queue with token
+        // emergency lai seperate queue
+        printf("3. View Queue list\n");
+        // display queue and dequeue info with timer?
+        printf("4. Search patient information\n");
+        // use linear/binary search and display information
+        printf("5. Exit\n");
+
         printf("\nEnter Option: ");
         scanf("%d", &option);
 
@@ -263,31 +427,30 @@ int main()
         {
         case 1:
             registration();
-            //sort
+            // sort
             getch();
             break;
         case 2:
-            checkup(&q);
+            checkup(&q,&e);
             getch();
-			break;
+            break;
         case 3:
             viewlist(&q);
             getch();
-			break;
+            break;
         case 4:
             search_menu();
             getch();
-			break;
-		case 5:
+            break;
+        case 5:
             printf("Exiting...\n");
             getch();
-			break;
+            break;
         default:
             printf("Invalid Choice\n");
             getch();
-			break;
+            break;
         }
     } while (option != 5);
     return 0;
 }
-
