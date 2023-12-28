@@ -33,6 +33,7 @@ struct emergency_queue
 };
 typedef struct emergency_queue EmergQueue;
 
+
 void registration()
 {
     system("CLS");
@@ -57,12 +58,13 @@ void registration()
     scanf("%s", &p.address);
     printf("Enter your CONTACT NUMBER: ");
     scanf("%d", &p.cont_no);
+
     fprintf(fptr, "\n%s %d %s %s %d", p.name, p.age, p.sex, p.address, p.cont_no);
     fclose(fptr);
-    // sort
 }
 
-void checkup(HospitalQueue *q,EmergQueue *e)
+
+void checkup(HospitalQueue *q, EmergQueue *e)
 {
     struct patient p, check;
     FILE *fptr;
@@ -103,7 +105,7 @@ void checkup(HospitalQueue *q,EmergQueue *e)
     scanf("%s", &p.emerg);
 
     // emergency case
-    if (toupper(p.emerg) == 'Y' || toupper(p.emerg) == 'YES')
+    if (strcmp(p.emerg, "Y") == 0 || strcmp(p.emerg, "YES") == 0 || strcmp(p.emerg, "y") == 0 || strcmp(p.emerg, "yes") == 0)
     {
         if ((e->rear + 1) % EMERG_MAX == e->front)
         {
@@ -133,39 +135,71 @@ void checkup(HospitalQueue *q,EmergQueue *e)
     }
 }
 
-void viewlist(HospitalQueue *q)
-{
-    int i;
 
+void viewlist(HospitalQueue *q, EmergQueue *e)
+{
+    system("CLS");
+    int i;
+  
     // Dequeue
-    if (q->front == q->rear)
+    printf("-------------CURRENT TURN-------------\n\n");
+    printf("Call for checkup:\n");
+    if (e->front != e->rear)
     {
-        printf("Queue is empty\n");
-        return;
+        e->front = (e->front + 1) % EMERG_MAX;
+        printf("\tEMERGENCY\n");
+        printf("\tName: %s\n", e->pat[e->front].name);
+        printf("\tCause: %s\n", e->pat[e->front].cause);
     }
     else
     {
-        // timer loop?
-        q->front = (q->front + 1) % MAX_QUEUE;
-        printf("Call for checkup:\n");
-        printf("\tToken number: %d\t\t", q->pat[q->front].token);
-        printf("\tName: %s\n", q->pat[q->front].name);
+        if (q->front == q->rear)
+        {
+            printf("\tEMPTY\n");
+        }
+        else
+        {
+            q->front = (q->front + 1) % MAX_QUEUE;
+            printf("Call for checkup:\n");
+            printf("\tToken number: %d\n", q->pat[q->front].token);
+            printf("\tName: %s\n", q->pat[q->front].name);
+            printf("\tCause: %s\n", q->pat[e->front].cause);
+        }
     }
 
+    printf("\n\n\n-------------Remaining-------------\n\n");
     // Display
+    printf("Emergency Queue:\n");
+    if (e->front == e->rear)
+    {
+        printf("\tEMPTY\n");
+    }
+    else
+    {
+        i = (e->front + 1) % EMERG_MAX;
+        while (i != (e->rear + 1) % EMERG_MAX)
+        {
+            printf("\tName: %s", e->pat[i].name);
+            printf("\tCause: %s\n", e->pat[i].cause);
+            i = (i + 1) % EMERG_MAX;
+        }
+        printf("\n");
+    }
+
+    printf("\n\nCurrent Queue:\n");
     if (q->front == q->rear)
     {
-        printf("Queue is empty\n");
+        printf("\tEMPTY\n");
         return;
     }
     else
     {
         i = (q->front + 1) % MAX_QUEUE;
-        printf("\n\nCurrent Queue:\n");
         while (i != (q->rear + 1) % MAX_QUEUE)
         {
-            printf("\tToken number: %d\t\t", q->pat[i].token);
-            printf("\tName: %s\n", q->pat[i].name);
+            printf("\tToken no.: %d\t", q->pat[i].token);
+            printf("\tName: %s", q->pat[i].name);
+            printf("\tCause: %s\n", q->pat[i].cause);
             i = (i + 1) % MAX_QUEUE;
         }
         printf("\n");
@@ -299,7 +333,7 @@ void edit_pat()
     fptr1 = fopen("patient.txt", "r");
     fptr2 = fopen("temp.txt", "w");
 
-    printf("DELETE PATIENT INFORMATION\n\n");
+    printf("EDIT PATIENT INFORMATION\n\n");
     printf("Enter patient's name: ");
     scanf("%s", &search_name);
     printf("Enter patient's contact number: ");
@@ -393,15 +427,17 @@ void search_menu()
             break;
         }
 
-    } while (option != 4);
+    } while (option != 5);
 }
 
 int main()
 {
     HospitalQueue q;
     EmergQueue e;
-    q.front = e.front= MAX_QUEUE - 1;
-    q.rear = e.rear= MAX_QUEUE - 1;
+    q.front = MAX_QUEUE - 1;
+    e.front = EMERG_MAX - 1;
+    q.rear = MAX_QUEUE - 1;
+    e.rear = EMERG_MAX - 1;
 
     int option;
 
@@ -410,14 +446,9 @@ int main()
         system("CLS");
         printf("-------------HOSPITAL-------------\n\n");
         printf("1. Register information\n");
-        // input data and store in file and sort
         printf("2. Enter for Checkup\n");
-        // check if user exists from file and enter reason for checkup and emergency case then assign to queue with token
-        // emergency lai seperate queue
         printf("3. View Queue list\n");
-        // display queue and dequeue info with timer?
         printf("4. Search patient information\n");
-        // use linear/binary search and display information
         printf("5. Exit\n");
 
         printf("\nEnter Option: ");
@@ -427,15 +458,14 @@ int main()
         {
         case 1:
             registration();
-            // sort
             getch();
             break;
         case 2:
-            checkup(&q,&e);
+            checkup(&q, &e);
             getch();
             break;
         case 3:
-            viewlist(&q);
+            viewlist(&q, &e);
             getch();
             break;
         case 4:
