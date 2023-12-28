@@ -66,6 +66,7 @@ void registration()
 
 void checkup(HospitalQueue *q, EmergQueue *e)
 {
+    system("CLS");
     struct patient p, check;
     FILE *fptr;
 
@@ -140,7 +141,7 @@ void viewlist(HospitalQueue *q, EmergQueue *e)
 {
     system("CLS");
     int i;
-  
+
     // Dequeue
     printf("-------------CURRENT TURN-------------\n\n");
     printf("Call for checkup:\n");
@@ -277,6 +278,7 @@ void delete_pat()
     int search_cont_no;
     FILE *fptr1, *fptr2;
     struct patient p;
+    int check=0;
 
     fptr1 = fopen("patient.txt", "r");
     fptr2 = fopen("temp.txt", "w");
@@ -303,6 +305,7 @@ void delete_pat()
         if (strcmp(search_name, p.name) == 0 && search_cont_no == p.cont_no)
         {
             printf("Record deleted successfully\n");
+            check=1;
             continue;
         }
         fprintf(fptr2, "\n%s %d %s %s %d", p.name, p.age, p.sex, p.address, p.cont_no);
@@ -314,7 +317,7 @@ void delete_pat()
     remove("patient.txt");
     rename("temp.txt", "patient.txt");
 
-    if (strcmp(search_name, p.name) != 0 && search_cont_no != p.cont_no)
+    if (check=0)
     {
         printf("Record not found");
         return;
