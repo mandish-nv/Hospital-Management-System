@@ -1,0 +1,5 @@
+The Hospital Management System (HMS) project is a solution designed to optimize the operations of a healthcare facility. The HMS aims to enhance the efficiency of hospital administration, improve patient care. By utilizing modern technologies and user-friendly interfaces, the system simplifies complex processes, reduces manual work and minimizes errors, ultimately leading to better patient care.
+
+The project on Hospital Management System is in C language using Data Structures and Algorithms. The goal of the project is to handle the flow of patients in a hospital and handle them in the basis of first in first out system that also prioritizes emergency patients. (Queue) This project will also keep track of record of each patient and store them with the help of files.
+
+The advantage of HMS is that the program will be user-friendly, will be able to store the records of patients and will be able to assign the highest priority patients to respective doctors along with higher priority to the emergency patients. The objective of this program was achieved using the implementation of queue.
